@@ -61,7 +61,7 @@ const renderList = () => {
     const a = document.createElement("a");
     a.className = "card";
     a.href = `?p=${encodeURIComponent(p.slug)}`;
-    a.innerHTML = `<h3>${p.title}</h3><p>${p.excerpt || ""}</p><div class="meta"><span>${fmtDate(p.date)}</span><span class="tag">Tech</span></div>`;
+    a.innerHTML = `<h3>${p.title}</h3><p>${p.excerpt || ""}</p><div class="meta"><span>${fmtDate(p.date)}</span></div>`;
     wrap.appendChild(a);
   });
   $("#loadMore").style.display = list.length > end ? "block" : "none";
@@ -79,7 +79,9 @@ const route = () => {
   const url = new URL(location.href);
   const slug = url.searchParams.get("p");
   const show = (id) => {
-    $$("#homeView,#postView,#aboutView").forEach((x) => x.classList.add("hidden"));
+    $$("#homeView,#postView,#aboutView").forEach((x) =>
+      x.classList.add("hidden")
+    );
     $(id).classList.remove("hidden");
   };
   if (slug) {
@@ -105,8 +107,11 @@ const filter = (term) => {
     return;
   }
   state.filtered = state.posts.filter((p) => {
-    const text = [p.title, p.excerpt, (p.html || "").replace(/<[^>]+>/g, " ")].join(" ");
-    return text.toLowerCase().includes(t);
+    const text = [p.title, p.excerpt, (p.html || "")]
+      .join(" ")
+      .replace(/<[^>]+>/g, " ")
+      .toLowerCase();
+    return text.includes(t);
   });
   renderList();
 };
@@ -135,7 +140,9 @@ const bind = () => {
 
 const boot = async () => {
   const data = await loadFeed();
-  state.posts = (data.posts || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+  state.posts = (data.posts || []).sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
   renderList();
   bind();
   route();
