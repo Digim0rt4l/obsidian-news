@@ -13,13 +13,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install --no-audit --no-fund --silent
-      - run: npm run generate
+
+      - name: Check essential files
+        run: |
+          test -f feed.json || (echo "Missing feed.json at repo root" && exit 1)
+          test -f scripts/generate.js || (echo "Missing scripts/generate.js" && exit 1)
+          test -f package.json || (echo "Missing package.json" && exit 1)
+
+      - name: Install deps
+        run: npm install --no-audit --no-fund
+
+      - name: Run generator
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY secret not provided"; exit 1
+          fi
+          set -x
+          node scripts/generate.js
+
       - name: Commit and push feed.json
         run: |
           git config user.name "obsidian-bot"
