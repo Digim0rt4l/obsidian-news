@@ -166,14 +166,6 @@ img {
   font-size: 13px;
 }
 
-.tag {
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(138, 92, 255, 0.15);
-  color: var(--accent-2);
-  font-size: 12px;
-}
-
 .load-more {
   margin: 20px auto 0;
   display: block;
