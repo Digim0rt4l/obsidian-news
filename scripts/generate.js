@@ -8,8 +8,11 @@ const FEED_FILE=path.join(process.cwd(),"feed.json")
 const MAX_POSTS=500
 const FEEDS=[
   "https://hnrss.org/frontpage",
-  "https://www.techmeme.com/feed.xml",
-  "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml"
+  "https://www.theverge.com/tech/rss/index.xml",
+  "https://feeds.arstechnica.com/arstechnica/technology-lab",
+  "https://techcrunch.com/feed/",
+  "https://9to5mac.com/feed/",
+  "https://www.macrumors.com/feed/"
 ]
 
 function requireEnv(name){
@@ -93,13 +96,18 @@ async function main(){
     const feed=await readFeed()
     const existingTitles=new Set(feed.posts.map(p=>p.title))
     const candidates=await fetchCandidates()
+    console.log("candidates", candidates.length)
     if(!candidates.length){console.error("No RSS candidates fetched"); return}
 
     let picked=null
     for(const c of candidates){
-      if(!c.title || existingTitles.has(c.title)) continue
+      if(!c.title){console.log("skip: empty title"); continue}
+      if(existingTitles.has(c.title)){console.log("skip: dup title", c.title); continue}
       const ok=await classifyTech(c.title,c.summary||"")
-      if(ok){picked=c;break}
+      if(!ok){console.log("skip: not tech", c.title); continue}
+      picked=c
+      console.log("picked:", c.title)
+      break
     }
     if(!picked){console.log("No new tech candidate found"); return}
 
@@ -122,6 +130,7 @@ async function main(){
       excerpt:art.excerpt,
       html:art.html
     }
+    console.log("writing post:", post.slug)
     feed.posts.unshift(post)
     await writeFeed(feed)
     console.log("Wrote:",post.title)
