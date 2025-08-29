@@ -8,11 +8,11 @@ const FEED_FILE=path.join(process.cwd(),"feed.json")
 const MAX_POSTS=500
 const FEEDS=[
   "https://hnrss.org/frontpage",
-  "https://www.theverge.com/tech/rss/index.xml",
+  "https://www.theverge.com/rss/index.xml",
   "https://feeds.arstechnica.com/arstechnica/technology-lab",
   "https://techcrunch.com/feed/",
   "https://9to5mac.com/feed/",
-  "https://www.macrumors.com/feed/"
+  "https://feeds.macrumors.com/MacRumors-All"
 ]
 
 function requireEnv(name){
@@ -22,7 +22,14 @@ function requireEnv(name){
 }
 
 const client=new OpenAI({apiKey:requireEnv("OPENAI_API_KEY")})
-const parser=new Parser()
+const parser=new Parser({
+  requestOptions:{
+    headers:{
+      "User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
+      "Accept":"application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8"
+    }
+  }
+})
 const slugify=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")
 const nowISO=()=>new Date().toISOString()
 
