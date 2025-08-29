@@ -64,7 +64,7 @@ Title: ${title}
 Summary: ${summary}
 Answer:`
   try{
-    const r=await client.responses.create({model:"gpt-4.1-mini",input:gate})
+    const r=await client.responses.create({model:"gpt-5",input:gate})
     const out=(r.output_text||"").trim().toUpperCase()
     return out.startsWith("TECH")
   }catch(e){
@@ -80,7 +80,7 @@ Source title: ${title}
 Source summary: ${summary}
 Source link: ${link}`}]
   const r=await client.responses.create({
-    model:"gpt-4.1",
+    model:"gpt-5",
     input:prompt,
     text:{format:{type:"json_object"}}
   })
