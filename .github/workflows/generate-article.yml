@@ -48,23 +48,14 @@ jobs:
           git config user.name "obsidian-bot"
           git config user.email "actions@users.noreply.github.com"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git pull --rebase
 
-      - name: Stage changes (or force a deploy ping)
+      - name: Commit and push changes
         run: |
-          git add feed.json
+          git add feed.json .deploy-ping || true
           if git diff --cached --quiet; then
-            echo "No article changes; writing deploy ping"
-            date -u +"%Y-%m-%dT%H:%M:%SZ" > .deploy-ping
-            git add .deploy-ping
+            echo "No changes to commit"
           else
-            echo "feed.json changed; will commit"
-          fi
-
-      - name: Commit and push
-        run: |
-          if git diff --cached --quiet; then
-            echo "Nothing to commit"
-          else
-            git commit -m "chore: publish update ($(date -u +'%Y-%m-%dT%H:%M:%SZ')) [skip ci]"
+            git commit -m "chore: publish update ($(date -u +'%Y-%m-%dT%H:%M:%SZ'))"
             git push
           fi
