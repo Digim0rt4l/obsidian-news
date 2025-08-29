@@ -43,6 +43,19 @@ jobs:
           fi
           node scripts/generate.js
 
+      - name: Inspect working tree
+        run: |
+          echo "Branch:" && git rev-parse --abbrev-ref HEAD
+          echo "Status:" && git status --porcelain
+          echo "Tracked?"
+          git ls-files --error-unmatch feed.json && echo "feed.json tracked" || echo "feed.json NOT tracked"
+          echo "Check ignore:"
+          git check-ignore -v feed.json || echo "not ignored"
+          echo "Diff:"
+          git diff -- feed.json | head -n 80 || true
+          echo "Head of feed.json:"
+          head -n 30 feed.json || true
+
       - name: Prepare git
         run: |
           git config user.name "obsidian-bot"
