@@ -12,11 +12,26 @@
 <link id="canonical" rel="canonical" href="https://obsidian-news.com/">
 <script>
 (function() {
-  const url = new URL(window.location.href);
   const canonical = document.getElementById("canonical");
-  if (url.searchParams.has("p")) {
-    canonical.href = `https://obsidian-news.com/?p=${encodeURIComponent(url.searchParams.get("p"))}`;
+  function setCanonical() {
+    const u = new URL(window.location.href);
+    if (u.searchParams.has("p")) {
+      canonical.href = "https://obsidian-news.com/?p=" + encodeURIComponent(u.searchParams.get("p"));
+    } else {
+      canonical.href = "https://obsidian-news.com/";
+    }
   }
+  setCanonical();
+  window.addEventListener("popstate", setCanonical);
+  window.addEventListener("hashchange", setCanonical);
+  document.addEventListener("click", function(e){
+    const a = e.target.closest("a");
+    if (!a) return;
+    const href = a.getAttribute("href") || "";
+    if (href.startsWith("?p=") || href.includes("?p=")) {
+      setTimeout(setCanonical, 0);
+    }
+  });
 })();
 </script>
 </head>
