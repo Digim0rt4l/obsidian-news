@@ -50,9 +50,10 @@ jobs:
             echo "OPENAI_API_KEY secret not provided"; exit 1
           fi
           node scripts/generate.js
-
-      - name: Build sitemap
-        run: node scripts/generate-sitemap.js
+          node scripts/generate-sitemap.js
+          echo "User-agent: *" > robots.txt
+          echo "Allow: /" >> robots.txt
+          echo "Sitemap: https://obsidian-news.com/sitemap.xml" >> robots.txt
 
       - name: Inspect working tree
         run: |
@@ -69,7 +70,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add feed.json sitemap.xml robots.txt _redirects || true
+          git add feed.json sitemap.xml robots.txt || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
