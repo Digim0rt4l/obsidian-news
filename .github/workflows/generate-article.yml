@@ -29,6 +29,7 @@ jobs:
         run: |
           test -f feed.json || (echo "Missing feed.json at repo root" && exit 1)
           test -f scripts/generate.js || (echo "Missing scripts/generate.js" && exit 1)
+          test -f scripts/generate-sitemap.js || (echo "Missing scripts/generate-sitemap.js" && exit 1)
           test -f package.json || (echo "Missing package.json" && exit 1)
 
       - name: Install deps
@@ -51,22 +52,29 @@ jobs:
           fi
           node scripts/generate.js
 
+      - name: Build sitemap
+        run: node scripts/generate-sitemap.js
+
       - name: Inspect working tree
         run: |
           echo "Branch:" && git rev-parse --abbrev-ref HEAD
           echo "Status:" && git status --porcelain
-          echo "Tracked?"
-          git ls-files --error-unmatch feed.json && echo "feed.json tracked" || echo "feed.json NOT tracked"
-          echo "Check ignore:"
-          git check-ignore -v feed.json || echo "not ignored"
-          echo "Diff:"
+          echo "Tracked:"
+          (git ls-files --error-unmatch feed.json && echo "feed.json tracked") || echo "feed.json NOT tracked"
+          (git ls-files --error-unmatch sitemap.xml && echo "sitemap.xml tracked") || echo "sitemap.xml NOT tracked"
+          (test -f robots.txt && echo "robots.txt present") || echo "robots.txt missing"
+          echo "Diff feed.json:"
           git diff -- feed.json | head -n 80 || true
+          echo "Diff sitemap.xml:"
+          git diff -- sitemap.xml | head -n 80 || true
           echo "Head of feed.json:"
           head -n 30 feed.json || true
+          echo "Head of sitemap.xml:"
+          head -n 30 sitemap.xml || true
 
       - name: Commit and push changes
         run: |
-          git add feed.json
+          git add feed.json sitemap.xml robots.txt || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else

@@ -78,6 +78,8 @@ const renderPost = (p) => {
 const route = () => {
   const url = new URL(location.href);
   const slug = url.searchParams.get("p");
+  const canonical = document.querySelector("link#canonical");
+  const ORIGIN = window.location.origin;
   const show = (id) => {
     $$("#homeView,#postView,#aboutView").forEach((x) =>
       x.classList.add("hidden")
@@ -87,12 +89,15 @@ const route = () => {
   if (slug) {
     const p = state.posts.find((x) => x.slug === slug);
     if (p) {
+      if (canonical) canonical.href = `${ORIGIN}/?p=${encodeURIComponent(slug)}`;
       renderPost(p);
       show("#postView");
     } else {
+      if (canonical) canonical.href = `${ORIGIN}/`;
       show("#homeView");
     }
   } else {
+    if (canonical) canonical.href = `${ORIGIN}/`;
     document.title = "Obsidian News — AI-Written Tech News";
     show("#homeView");
   }
@@ -126,6 +131,9 @@ const bind = () => {
     e.preventDefault();
     $$("#homeView,#postView").forEach((x) => x.classList.add("hidden"));
     $("#aboutView").classList.remove("hidden");
+    const canonical = document.querySelector("link#canonical");
+    const ORIGIN = window.location.origin;
+    if (canonical) canonical.href = `${ORIGIN}/`;
   });
   window.addEventListener("popstate", route);
   document.body.addEventListener("click", (e) => {
