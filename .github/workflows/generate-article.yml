@@ -51,6 +51,9 @@ jobs:
           fi
           node scripts/generate.js
 
+      - name: Build sitemap
+        run: node scripts/generate-sitemap.js
+
       - name: Inspect working tree
         run: |
           echo "Branch:" && git rev-parse --abbrev-ref HEAD
@@ -66,7 +69,7 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git add feed.json
+          git add feed.json sitemap.xml robots.txt _redirects || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
