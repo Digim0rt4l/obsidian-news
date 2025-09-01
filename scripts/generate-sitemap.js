@@ -18,25 +18,16 @@ async function build(){
   const data = JSON.parse(raw);
   const posts = Array.isArray(data.posts)?data.posts:[];
   const urls = [];
-
   urls.push({loc: `${SITE}/`, lastmod: posts[0]?.date || new Date().toISOString()});
-
   for(const p of posts){
     if(!p || !p.slug) continue;
-    urls.push({loc: `${SITE}/articles/${p.slug}/`, lastmod: p.date || null});
+    urls.push({loc: `${SITE}/?p=${encodeURIComponent(p.slug)}`, lastmod: p.date || null});
   }
-
   const items = urls.map(u=>{
     const last = u.lastmod ? `<lastmod>${isoToLastmod(u.lastmod)}</lastmod>` : "";
     return `<url><loc>${u.loc}</loc>${last}</url>`;
   }).join("");
-
-  const xml =
-    `<?xml version="1.0" encoding="UTF-8"?>`+
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`+
-    items+
-    `</urlset>`;
-
+  const xml = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${items}</urlset>`;
   await fs.writeFile(SITEMAP_FILE, xml);
   console.log("Wrote sitemap:", urls.length);
 }
