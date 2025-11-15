@@ -25,7 +25,7 @@ const client=new OpenAI({apiKey:requireEnv("OPENAI_API_KEY")})
 const parser=new Parser({
   requestOptions:{
     headers:{
-      "User-Agent":"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:131.0) Gecko/20100101 Firefox/131.0",
+      "User-Agent":"Mozilla/5.0 (X11; Ubuntu/25.10; Linux x86_64; rv:145.0) Gecko/20100101 Firefox/145.0",
       "Accept":"application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8"
     }
   }
@@ -74,7 +74,7 @@ Title: ${title}
 Summary: ${summary}
 Answer:`
   try{
-    const r=await client.responses.create({model:"gpt-5",input:gate})
+    const r=await client.responses.create({model:"gpt-5.1",input:gate})
     const out=(r.output_text||"").trim().toUpperCase()
     return out.startsWith("TECH")
   }catch(e){
@@ -90,7 +90,7 @@ Source title: ${title}
 Source summary: ${summary}
 Source link: ${link}`}]
   const r=await client.responses.create({
-    model:"gpt-5",
+    model:"gpt-5.1",
     input:prompt,
     text:{format:{type:"json_object"}}
   })
