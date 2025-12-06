@@ -91,6 +91,14 @@ const route = () => {
       x.classList.add("hidden")
     );
     $(id).classList.remove("hidden");
+    const hero = $("#hero");
+    if (hero) {
+      if (id === "#homeView") {
+        hero.classList.remove("hidden");
+      } else {
+        hero.classList.add("hidden");
+      }
+    }
   };
   if (slug) {
     const p = state.posts.find((x) => x.slug === slug);
@@ -141,6 +149,10 @@ const bind = () => {
     $$("#homeView,#postView").forEach((x) => x.classList.add("hidden"));
     $("#aboutView").classList.remove("hidden");
     scrollToTop();
+    const hero = $("#hero");
+    if (hero) {
+      hero.classList.add("hidden");
+    }
     const canonical = document.querySelector("link#canonical");
     const ORIGIN = window.location.origin;
     if (canonical) canonical.href = `${ORIGIN}/`;
