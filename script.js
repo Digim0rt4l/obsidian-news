@@ -10,6 +10,10 @@ const state = {
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+};
+
 const fmtDate = (iso) =>
   new Date(iso).toLocaleString([], {
     year: "numeric",
@@ -61,7 +65,9 @@ const renderList = () => {
     const a = document.createElement("a");
     a.className = "card";
     a.href = `?p=${encodeURIComponent(p.slug)}`;
-    a.innerHTML = `<h3>${p.title}</h3><p>${p.excerpt || ""}</p><div class="meta"><span>${fmtDate(p.date)}</span></div>`;
+    a.innerHTML = `<h3>${p.title}</h3><p>${p.excerpt || ""}</p><div class="meta"><span>${fmtDate(
+      p.date
+    )}</span></div>`;
     wrap.appendChild(a);
   });
   $("#loadMore").style.display = list.length > end ? "block" : "none";
@@ -92,14 +98,17 @@ const route = () => {
       if (canonical) canonical.href = `${ORIGIN}/?p=${encodeURIComponent(slug)}`;
       renderPost(p);
       show("#postView");
+      scrollToTop();
     } else {
       if (canonical) canonical.href = `${ORIGIN}/`;
       show("#homeView");
+      scrollToTop();
     }
   } else {
     if (canonical) canonical.href = `${ORIGIN}/`;
     document.title = "Obsidian News — AI-Written Tech News";
     show("#homeView");
+    scrollToTop();
   }
 };
 
@@ -131,6 +140,7 @@ const bind = () => {
     e.preventDefault();
     $$("#homeView,#postView").forEach((x) => x.classList.add("hidden"));
     $("#aboutView").classList.remove("hidden");
+    scrollToTop();
     const canonical = document.querySelector("link#canonical");
     const ORIGIN = window.location.origin;
     if (canonical) canonical.href = `${ORIGIN}/`;
