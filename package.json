@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "generate": "node scripts/generate.js"
   },
   "dependencies": {
-    "openai": "^4.0.0",
+    "openai": "^6.0.0",
     "rss-parser": "^3.12.0"
   }
 }
