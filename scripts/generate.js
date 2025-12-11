@@ -26,12 +26,35 @@ function requireEnv(name) {
 
 const client = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
 
+function sanitizeToASCII(text) {
+  if (!text) return text;
+  text = text.normalize("NFKC");
+  const replacements = [
+    [/[\u201C\u201D\u2033\u2036\u3003]/g, '"'],
+    [/[\u2018\u2019\u2032\u2035]/g, "'"],
+    [/[\u00AB\u00BB\u2039\u203A]/g, '"'],
+    [/[\u2013\u2014\u2015\u2212]/g, "-"],
+    [/[\u2022\u2023\u2043]/g, "*"],
+    [/[\u2026]/g, "..."],
+    [/[\u00A0]/g, " "],
+    [/[\u2000-\u200B]/g, " "],
+    [/[\u202F\u205F]/g, " "],
+    [/[\u00D7]/g, "x"],
+    [/[\u00F7]/g, "/"],
+    [/[\u2122]/g, " (TM)"],
+    [/[\u00AE]/g, " (R)"],
+    [/[\u00A9]/g, " (C)"]
+  ];
+  for (const [r, rep] of replacements) text = text.replace(r, rep);
+  text = text.replace(/[\u0000-\u001F\u007F]/g, "");
+  text = text.replace(/[^\x00-\x7F]/g, "");
+  return text;
+}
+
 async function getLatestFirefoxVersion() {
   try {
     const res = await fetch("https://product-details.mozilla.org/1.0/firefox_versions.json");
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return null;
     const json = await res.json();
     return json.LATEST_FIREFOX_VERSION || null;
   } catch {
@@ -43,22 +66,16 @@ async function getUbuntuVersion() {
   try {
     const data = await fs.readFile("/etc/os-release", "utf8");
     const match = data.match(/VERSION_ID="([^"]+)"/);
-    if (match) {
-      return match[1];
-    }
+    if (match) return match[1];
   } catch {}
   return null;
 }
 
 async function buildUserAgent() {
   const firefox = await getLatestFirefoxVersion();
-  if (!firefox) {
-    return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
-  }
+  if (!firefox) return "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Safari/537.36";
   const ubuntu = await getUbuntuVersion();
-  if (ubuntu) {
-    return `Mozilla/5.0 (X11; Ubuntu/${ubuntu}; Linux x86_64; rv:${firefox}) Gecko/20100101 Firefox/${firefox}`;
-  }
+  if (ubuntu) return `Mozilla/5.0 (X11; Ubuntu/${ubuntu}; Linux x86_64; rv:${firefox}) Gecko/20100101 Firefox/${firefox}`;
   return `Mozilla/5.0 (X11; Linux x86_64; rv:${firefox}) Gecko/20100101 Firefox/${firefox}`;
 }
 
@@ -126,7 +143,7 @@ async function draftArticle(title, summary, link) {
   const prompt = [
     {
       role: "user",
-      content: `Write a 600–850 word technology news article for a professional audience based on the item below. Focus on verified facts, product impact, developer relevance, and industry context. Exclude general science angles. Include a short, clear title and a 1–2 sentence excerpt. Return JSON only with keys: title, excerpt, html. The html should use <p>, <h2>, and <ul>/<li> where helpful. Do not include external scripts or images.
+      content: `Write a 600-850 word technology news article for a professional audience based on the item below. Focus on verified facts, product impact, developer relevance, and industry context. Exclude general science angles. Include a short, clear title and a 1-2 sentence excerpt. Return JSON only with keys: title, excerpt, html. The html should use <p>, <h2>, and <ul>/<li> where helpful. Do not include external scripts or images. Use only plain ASCII characters for all output.
 
 Source title: ${title}
 Source summary: ${summary}
@@ -196,6 +213,10 @@ async function main() {
       console.error("Article generation failed:", e.message || e);
       return;
     }
+
+    art.title = sanitizeToASCII(art.title);
+    art.excerpt = sanitizeToASCII(art.excerpt);
+    art.html = sanitizeToASCII(art.html);
 
     const slug = slugify(art.title);
     if (feed.posts.some((p) => p.slug === slug)) {
