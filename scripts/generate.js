@@ -130,7 +130,7 @@ Title: ${title}
 Summary: ${summary}
 Answer:`;
   try {
-    const r = await client.responses.create({ model: "gpt-5.1", input: gate });
+    const r = await client.responses.create({ model: "gpt-5.2", input: gate });
     const out = (r.output_text || "").trim().toUpperCase();
     return out.startsWith("TECH");
   } catch (e) {
@@ -151,7 +151,7 @@ Source link: ${link}`
     }
   ];
   const r = await client.responses.create({
-    model: "gpt-5.1",
+    model: "gpt-5.2",
     input: prompt,
     text: { format: { type: "json_object" } }
   });
